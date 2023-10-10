@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Influencer {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+  client    String
+  media     String
+  posts     Post[]
+}
+
+model Post {
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  influencer   Influencer @relation(fields: [influencerId], references: [id])
+  influencerId String
+  date         DateTime
+  text         String?
+  hashTags     Json
+  link         String?
+  likes        Int
+  comments     Int
+  shares       Int
+}
+
+enum ReportType {
+  summary
+  detailed
+}
+
+model Report {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  from      DateTime
+  to        DateTime
+  type      ReportType
+  path      String
+}
